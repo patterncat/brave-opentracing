@@ -23,10 +23,10 @@ import com.github.kristofa.brave.ServerTracer;
 import com.github.kristofa.brave.SpanId;
 
 
-final class BraveSpan extends AbstractSpan {
+final class BraveSpan extends AbstractSpan implements BraveSpanContext {
 
     final SpanId spanId;
-    final Optional<Span> parent;
+    final Optional<BraveSpanContext> parent;
     final Optional<ServerTracer> serverTracer;
 
     private final Brave brave;
@@ -35,7 +35,7 @@ final class BraveSpan extends AbstractSpan {
     public static BraveSpan create(
             Brave brave,
             String operationName,
-            Optional<Span> parent,
+            Optional<BraveSpanContext> parent,
             Instant start,
             Optional<ServerTracer> serverTracer) {
 
@@ -45,7 +45,7 @@ final class BraveSpan extends AbstractSpan {
     private BraveSpan(
             Brave brave,
             String operationName,
-            Optional<Span> parent,
+            Optional<BraveSpanContext> parent,
             Instant start,
             Optional<ServerTracer> serverTracer) {
 
@@ -74,5 +74,20 @@ final class BraveSpan extends AbstractSpan {
 
     void setClientTracer(ClientTracer clientTracer) {
         this.clientTracer = Optional.of(clientTracer);
+    }
+
+    @Override
+    public long getContextTraceId() {
+        return spanId.traceId;
+    }
+
+    @Override
+    public long getContextSpanId() {
+        return spanId.spanId;
+    }
+
+    @Override
+    public Long getContextParentSpanId() {
+        return spanId.parentId;
     }
 }
